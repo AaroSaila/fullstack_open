@@ -31,6 +31,6 @@ sequenceDiagram
     activate server
     Note left of server: data.json contains new and pre-existing notes
     server ->> browser: data.json
-    Note right of browser: Browser displays notes to user
     deactivate server
+    Note right of browser: Browser displays notes to user
 ```

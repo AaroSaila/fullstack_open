@@ -1,4 +1,4 @@
-const Header = function (props) {
+const Header = function(props) {
   return (
     <>
       <h1>{props.name}</h1>
@@ -6,7 +6,7 @@ const Header = function (props) {
   )
 }
 
-const Part = function (props) {
+const Part = function(props) {
   return (
     <>
       <p>{props.part.name} {props.part.exercises}</p>
@@ -14,7 +14,7 @@ const Part = function (props) {
   )
 }
 
-const Content = function (props) {
+const Content = function(props) {
   return (
     <>
       <Part part={props.parts[0]} />
@@ -24,7 +24,7 @@ const Content = function (props) {
   )
 }
 
-const Total = function (props) {
+const Total = function(props) {
   const total = (
     props.parts[0].exercises
     + props.parts[1].exercises
@@ -37,7 +37,7 @@ const Total = function (props) {
   )
 }
 
-const App = function () {
+const App = function() {
   const course = {
     name: "Half Stack application development",
     parts: [

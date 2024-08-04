@@ -72,6 +72,28 @@ const Persons = ({ persons, deleteHandler }) => {
   )
 }
 
+const Notification = ({message, mode}) => {
+  if (message === null)
+    return null
+
+  const notifStyle = {
+    fontSize: 20,
+    backgroundColor: "lightgrey",
+    borderStyle: "solid",
+    borderRadius: 5,
+    padding: 10,
+    margin: 5
+  }
+
+  notifStyle.color = mode === "error" ? "red" : "green"
+
+  return (
+    <div style={notifStyle}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     {
@@ -82,6 +104,8 @@ const App = () => {
   const [newName, setNewName] = useState("")
   const [newNumber, setNewNumber] = useState("")
   const [filter, setFilter] = useState("")
+  const [message, setMessage] = useState(null)
+  const [notifMode, setNotifMode] = useState("notif")
 
   const handleFilterinput = (event) => {
     const newFilter = event.target.value.toLowerCase()
@@ -96,33 +120,53 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const updateName = () => {
+    const person = persons.find(n => n.name.toLowerCase() === newName.toLowerCase())
+    const newPerson = {...person, number: newNumber}
+    numberService
+    .update(newPerson)
+    .then(updatedPerson => {
+      setPersons(persons.map(n =>
+        n.id === updatedPerson.id
+        ? updatedPerson
+        : n
+      ))
+      setNewName("")
+      setNewNumber("")
+      setNotifMode("notif")
+      setMessage(`Updated ${updatedPerson.name}`)
+      setTimeout(() => setMessage(null), 5000)
+    })
+    .catch(() => {
+      setNewName("")
+      setNewNumber("")
+      setNotifMode("error")
+      setMessage(
+        `Information of ${newName} has already been removed from the server`
+      )
+      setTimeout(() => setMessage(null), 5000)
+    })
+    return
+  }
+
   const submitNewName = (event) => {
     event.preventDefault()
 
-    if (persons.map(person => person.name).includes(newName)) {
+    if (
+      persons.map(person => person.name.toLowerCase())
+      .includes(newName.toLowerCase())
+    ) {
       if (
         !confirm(
-        `${newName} is already added to phonebook, replace old number with a new one?`
+          `${newName} is already added to phonebook, replace old number with a new one?`
         )
       ) {
         console.log("name already in phonebook")
         return
+      } else {
+        updateName()
+        return
       }
-
-      const person = persons.find(n => n.name === newName)
-      const newPerson = {...person, number: newNumber}
-      numberService
-      .update(newPerson)
-      .then(updatedPerson => {
-        setPersons(persons.map(n =>
-          n.id === updatedPerson.id
-          ? updatedPerson
-          : n
-        ))
-        setNewName("")
-        setNewNumber("")
-      })
-      return
     }
 
     const newPersonObject = {
@@ -134,6 +178,11 @@ const App = () => {
     .create(newPersonObject)
     .then(returnedObject => {
       setPersons(persons.concat(returnedObject))
+      setNotifMode("notif")
+      setMessage(
+        `Added ${returnedObject.name}`
+      )
+      setTimeout(() => setMessage(null), 5000);
       setNewName("")
       setNewNumber("")
     })
@@ -171,6 +220,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={message} mode={notifMode}/>
       <Filter filter={filter} handler={handleFilterinput} />
       <h2>Add a new entry</h2>
       <PersonForm
